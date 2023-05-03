@@ -7,6 +7,9 @@ const axios = require('axios');
 require('dotenv').config()
 const client_id = process.env.client_id;
 const client_secret = process.env.client_secret;
+let newToken;
+
+const testAlbum = '7iLuHJkrb9KHPkMgddYigh';
 
 // Middleware
 app.use(bodyParser.json()); 
@@ -14,6 +17,20 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('build'));
 
 // Calls
+app.get('/albums', (req, res) => {
+  axios({
+    method: 'GET',
+    url: `https://api.spotify.com/v1/albums/${testAlbum}/tracks`,
+    headers: {
+      Authorization: `Bearer ${newToken}`
+    }
+  }).then((response) => {
+    res.send(response.data)
+  }).catch((error) => {
+    console.log('Error: ', error)
+  })
+})
+
 app.post('/', (req, res) => {
   axios({
     method: 'POST',
@@ -27,7 +44,9 @@ app.post('/', (req, res) => {
     },
     json: true,
   }).then((response) => {
-    console.log('Response: ', response.data)
+    // console.log('Response in server.js: ', response.data.access_token)
+    newToken = response.data.access_token;
+    res.send(response.data)
   }).catch((error) => {
     console.log('Error: ', error)
   })
